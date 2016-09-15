@@ -166,11 +166,11 @@ If all that your web app needs to do is execute policies, you can skip the next 
 You can redeem the authorization_code that you acquired (by using `response_type=code+id_token`) for a token to the desired resource by sending a `POST` request to the `/token` endpoint. Currently, the only resource that you can request a token for is your app's own backend web API. The convention for requesting a token to yourself is to use your app's client ID as the scope:
 
 ```
-POST fabrikamb2c.onmicrosoft.com/v2.0/oauth2/token?p=b2c_1_sign_in HTTP/1.1
+POST fabrikamb2c.onmicrosoft.com/oauth2/v2.0/token?p=b2c_1_sign_in HTTP/1.1
 Host: https://login.microsoftonline.com
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=authorization_code&client_id=90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6&scope=90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6 offline_access&code=AwABAAAAvPM1KaPlrEqdFSBzjqfTGBCmLdgfSTLEMPGYuNHSUYBrq...&redirect_uri=urn:ietf:wg:oauth:2.0:oob&client_secret=<your-application-secret>
+grant_type=authorization_code&client_id=90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6&scope=openid offline_access&code=AwABAAAAvPM1KaPlrEqdFSBzjqfTGBCmLdgfSTLEMPGYuNHSUYBrq...&redirect_uri=urn:ietf:wg:oauth:2.0:oob&client_secret=<your-application-secret>
 
 ```
 
@@ -190,7 +190,7 @@ A successful token response will look like:
 {
 	"not_before": "1442340812",
 	"token_type": "Bearer",
-	"access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik5HVEZ2ZEstZnl0aEV1Q...",
+	"id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik5HVEZ2ZEstZnl0aEV1Q...",
 	"scope": "90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6 offline_access",
 	"expires_in": "3600",
 	"refresh_token": "AAQfQmvuDy8WtUv-sd0TBwWVQs1rC-Lfxa_NDkLqpg50Cxp5Dxj0VPF1mx2Z...",
@@ -200,7 +200,7 @@ A successful token response will look like:
 | ----------------------- | ------------------------------- |
 | not_before | The time at which the token is considered valid, in epoch time. |
 | token_type | The token type value. The only type that Azure AD supports is Bearer. |
-| access_token | The signed JWT token that you requested. |
+| id_token | The signed JWT token that you requested. |
 | scope | The scopes that the token is valid for, which can be used for caching tokens for later use. |
 | expires_in | The length of time that the access_token is valid (in seconds). |
 | refresh_token | An OAuth 2.0 refresh_token. The app can use this token to acquire additional tokens after the current token expires.  Refresh_tokens are long lived, and can be used to retain access to resources for extended periods of time. For more detail, refer to the [B2C token reference](active-directory-b2c-reference-tokens.md). Note that you must have used the scope `offline_access` in both the authorization and token requests in order to receive a refresh_token. |
@@ -220,7 +220,7 @@ Error responses will look like:
 | error_description | A specific error message that can help a developer identify the root cause of an authentication error. |
 
 ## Use the token
-Now that you've successfully acquired an `access_token`, you can use the token in requests to your backend web APIs by including it in the `Authorization` header:
+Now that you've successfully acquired an `id_token`, you can use the token in requests to your backend web APIs by including it in the `Authorization` header:
 
 ```
 GET /tasks
@@ -232,7 +232,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik5HVEZ2ZEstZn
 The id_tokens are short lived. You must refresh them after they expire to continue being able to access resources. You can do so by submitting another `POST` request to the `/token` endpoint. This time, provide the `refresh_token` instead of the `code`:
 
 ```
-POST fabrikamb2c.onmicrosoft.com/v2.0/oauth2/token?p=b2c_1_sign_in HTTP/1.1
+POST fabrikamb2c.onmicrosoft.com/oauth2/v2.0/token?p=b2c_1_sign_in HTTP/1.1
 Host: https://login.microsoftonline.com
 Content-Type: application/x-www-form-urlencoded
 
